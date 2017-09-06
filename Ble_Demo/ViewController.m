@@ -160,6 +160,11 @@
             [self startScan];
         }
     };
+    
+    [CCBleManager shareInstance].findReConnectPeripheralBlock = ^(CBPeripheral *peripheral) {
+        
+        NSLog(@"发现重连过的设备");
+    };
 }
 
 - (void)startScan {

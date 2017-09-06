@@ -25,9 +25,9 @@ typedef void(^CCDidFindReConnectPeripheral)(CBPeripheral *peripheral); //发现�
 
 @property(nonatomic,strong) CBCentralManager *centralManager;
 
-@property(nonatomic,copy) CCDidUpdateState updateStateBlock;
-@property(nonatomic,copy) CCDidFindReConnectPeripheral findReConnectPeripheralBlock;
-@property(nonatomic,strong) NSMutableArray *reConnectDevices;
+@property(nonatomic,copy) CCDidUpdateState updateStateBlock;    //蓝牙状态改变回调
+//@property(nonatomic,copy) CCDidFindReConnectPeripheral findReConnectPeripheralBlock;    //发现存储过的设备(已注释，在搜索到设备那里判断即可)
+@property(nonatomic,strong) NSMutableArray *reConnectDevices;   //存储过的设备
 
 + (CCBleManager *)shareInstance;
 

@@ -181,24 +181,20 @@ static CCBleManager *manager;
     
 //    NSLog(@"didDiscoverPeripheral: %@",peripheral);
 
+    //暂时不用，在搜索到设备那里判断即可
+//    if ([self.reConnectDevices containsObject:peripheral.identifier.UUIDString]) {
+//        NSLog(@"发现可重连设备...");
+//        
+//        if (_findReConnectPeripheralBlock) {
+//            _findReConnectPeripheralBlock(peripheral);
+//            
+//        }
+//    }
+    
     if (_didDiscoverPeripheralBlock) {
         _didDiscoverPeripheralBlock(peripheral);
     }
-    
-    return;
-    if ([self.reConnectDevices containsObject:peripheral.identifier.UUIDString]) {
-        NSLog(@"发现可重连设备...");
-        
-        if (_findReConnectPeripheralBlock) {
-            _findReConnectPeripheralBlock(peripheral);
-            return;
-        }
-    }
-    
-    if (self.reConnectDevices.count) {
-        NSLog(@"有绑定过设备，不允许连接其他设备");
-        return;
-    }
+
 }
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
