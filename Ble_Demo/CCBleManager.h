@@ -10,7 +10,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 
 typedef void(^CCDidUpdateState)(CBManagerState state);  //蓝牙状态
-typedef void(^CCDidDiscoverPeripheral)(CBPeripheral *peripheral);   //发现新设备
+typedef void(^CCDidDiscoverPeripheral)(CBPeripheral *peripheral,NSDictionary<NSString *,id> *advertisementData);   //发现新设备
 typedef void(^CCDidConnectPeripheral)(CBPeripheral *peripheral);    //连接成功
 typedef void(^CCDidFailToConnectPerippheral)(CBPeripheral *peripheral, NSError *error); //连接失败
 typedef void(^CCDidDisconnectPeripheral)(CBPeripheral *peripheral, NSError *error); //断开连接
@@ -18,6 +18,7 @@ typedef void(^CCDidDiscoverServices)(CBPeripheral *peripheral, NSError *error); 
 typedef void(^CCDidDiscoverCharacteristicsForService)(CBService *service, NSError *error);  //发现特征
 typedef void(^CCDidUpdateValueForCharacteristic)(CBCharacteristic *characteristic, NSError *error); //设备数据回调
 typedef void(^CCDidWriteValueForCharacteristic)(CBCharacteristic *characterisic, NSError *error);   //写入数据完成回调
+typedef void(^CCReadRSSI)(CBPeripheral *peripheral, NSNumber *RSSI);  //读取设备RSSI值
 
 typedef void(^CCDidFindReConnectPeripheral)(CBPeripheral *peripheral); //发现可重连设备
 
@@ -33,8 +34,8 @@ typedef void(^CCDidFindReConnectPeripheral)(CBPeripheral *peripheral); //发现�
 
 //扫描设备
 - (void)scanForPeripheralWithServices:(NSArray *)serviceUUIDs
-                               options:(NSDictionary <NSString *, id> *)options
-                             withBlock:(CCDidDiscoverPeripheral)block;
+                              options:(NSDictionary <NSString *, id> *)options
+                            withBlock:(CCDidDiscoverPeripheral)block;
 
 //停止扫描
 - (void)stopScan;
@@ -42,7 +43,7 @@ typedef void(^CCDidFindReConnectPeripheral)(CBPeripheral *peripheral); //发现�
 //连接设备
 - (void)connectPeripheral:(CBPeripheral *)peripheral
                   options:(NSDictionary <NSString *, id> *)options
-         withSuccess:(CCDidConnectPeripheral)success
+              withSuccess:(CCDidConnectPeripheral)success
                      fail:(CCDidFailToConnectPerippheral)fail
                disConnect:(CCDidDisconnectPeripheral)disConnect;
 
@@ -74,6 +75,9 @@ typedef void(^CCDidFindReConnectPeripheral)(CBPeripheral *peripheral); //发现�
     withPeripheral:(CBPeripheral *)peripheral
          withBlock:(CCDidWriteValueForCharacteristic)block;
 
+//读取RSSI值
+- (void)readRSSIWith:(CBPeripheral *)peripheral block:(CCReadRSSI)block;
+
 //重置block块
 - (void)resetBlocks;
 
@@ -88,3 +92,4 @@ typedef void(^CCDidFindReConnectPeripheral)(CBPeripheral *peripheral); //发现�
 
 
 @end
+

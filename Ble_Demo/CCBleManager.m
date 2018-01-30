@@ -20,6 +20,7 @@ static NSString *kReConnectDeviceUUIDs = @"kReConnectDeviceUUIDs";  //已存储�
     CCDidDiscoverCharacteristicsForService _didDiscoverCharacteristicsForServiceBlock;
     CCDidUpdateValueForCharacteristic _didUpdateValueForCharacteristicBlock;
     CCDidWriteValueForCharacteristic _didWriteValueForCharacteristicBlock;
+    CCReadRSSI _readRSSIBlock;
 }
 
 @end
@@ -50,16 +51,16 @@ static CCBleManager *manager;
     _didDiscoverCharacteristicsForServiceBlock = nil;
     _didUpdateValueForCharacteristicBlock = nil;
     _didWriteValueForCharacteristicBlock = nil;
-    _findReConnectPeripheralBlock = nil;
+    _readRSSIBlock = nil;
+    //    _findReConnectPeripheralBlock = nil;
 }
 
 #pragma mark - APIs (public)
 //扫描设备
 - (void)scanForPeripheralWithServices:(NSArray *)serviceUUIDs
-                               options:(NSDictionary <NSString *, id> *)options
-                             withBlock:(CCDidDiscoverPeripheral)block {
+                              options:(NSDictionary <NSString *, id> *)options
+                            withBlock:(CCDidDiscoverPeripheral)block {
     
-    NSLog(@"scanForPeripheralWithServices");
     _didDiscoverPeripheralBlock = block;
     if (self.centralManager.state == CBManagerStatePoweredOn) {
         [self.centralManager scanForPeripheralsWithServices:serviceUUIDs options:options];
@@ -68,14 +69,13 @@ static CCBleManager *manager;
 
 //停止扫描
 - (void)stopScan {
-    NSLog(@"stopScan");
     [self.centralManager stopScan];
 }
 
 //连接设备
 - (void)connectPeripheral:(CBPeripheral *)peripheral
                   options:(NSDictionary <NSString *, id> *)options
-                withSuccess:(CCDidConnectPeripheral)success
+              withSuccess:(CCDidConnectPeripheral)success
                      fail:(CCDidFailToConnectPerippheral)fail
                disConnect:(CCDidDisconnectPeripheral)disConnect {
     
@@ -142,6 +142,12 @@ static CCBleManager *manager;
     [peripheral writeValue:data forCharacteristic:characteristic type:type];
 }
 
+//读取RSSI值
+- (void)readRSSIWith:(CBPeripheral *)peripheral block:(CCReadRSSI)block {
+    _readRSSIBlock = block;
+    [peripheral readRSSI];
+}
+
 #pragma mark - CBCentralManagerDelegate
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
     
@@ -178,38 +184,25 @@ static CCBleManager *manager;
 }
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *,id> *)advertisementData RSSI:(NSNumber *)RSSI {
-    
-//    NSLog(@"didDiscoverPeripheral: %@",peripheral);
 
-    //暂时不用，在搜索到设备那里判断即可
-//    if ([self.reConnectDevices containsObject:peripheral.identifier.UUIDString]) {
-//        NSLog(@"发现可重连设备...");
-//        
-//        if (_findReConnectPeripheralBlock) {
-//            _findReConnectPeripheralBlock(peripheral);
-//            
-//        }
-//    }
-    
     if (_didDiscoverPeripheralBlock) {
-        _didDiscoverPeripheralBlock(peripheral);
+        _didDiscoverPeripheralBlock(peripheral,advertisementData);
     }
-
+    
 }
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
-//    NSLog(@"didConnectPeripheral...");
+    //    NSLog(@"didConnectPeripheral...");
     
     [self.centralManager stopScan];
     
     if (_didConnectPeripheralBlock) {
         _didConnectPeripheralBlock(peripheral);
     }
-    
 }
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
-//    NSLog(@"didFailToConnectPeripheral");
+    //    NSLog(@"didFailToConnectPeripheral");
     
     if (_didFailToConnectPerippheralBlock) {
         _didFailToConnectPerippheralBlock(peripheral, error);
@@ -217,7 +210,7 @@ static CCBleManager *manager;
 }
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
-//    NSLog(@"didDisconnectPeripheral");
+    //    NSLog(@"didDisconnectPeripheral");
     
     if (_didDisconnectPeripheralBlock) {
         _didDisconnectPeripheralBlock(peripheral, error);
@@ -226,7 +219,7 @@ static CCBleManager *manager;
 
 #pragma mark - CBPeripheralDelegate
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(nullable NSError *)error {
-//    NSLog(@"didDiscoverServices...");
+    //    NSLog(@"didDiscoverServices...");
     
     if (_didDiscoverServicesBlock) {
         _didDiscoverServicesBlock(peripheral, error);
@@ -234,7 +227,7 @@ static CCBleManager *manager;
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
-//    NSLog(@"didDiscoverCharacteristicsForService");
+    //    NSLog(@"didDiscoverCharacteristicsForService");
     
     if (_didDiscoverCharacteristicsForServiceBlock) {
         _didDiscoverCharacteristicsForServiceBlock(service, error);
@@ -242,7 +235,7 @@ static CCBleManager *manager;
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
-//    NSLog(@"didUpdateValueForCharacteristic");
+    //    NSLog(@"didUpdateValueForCharacteristic");
     
     if (_didUpdateValueForCharacteristicBlock) {
         _didUpdateValueForCharacteristicBlock(characteristic, error);
@@ -250,13 +243,18 @@ static CCBleManager *manager;
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
-//    NSLog(@"didWriteValueForCharacteristic");
+    //    NSLog(@"didWriteValueForCharacteristic");
     
     if (_didWriteValueForCharacteristicBlock) {
         _didWriteValueForCharacteristicBlock(characteristic, error);
     }
 }
 
+- (void)peripheral:(CBPeripheral *)peripheral didReadRSSI:(NSNumber *)RSSI error:(NSError *)error {
+    if (_readRSSIBlock) {
+        _readRSSIBlock(peripheral,RSSI);
+    }
+}
 
 #pragma mark - Lazy load
 - (NSMutableArray *)reConnectDevices {
@@ -299,3 +297,4 @@ static CCBleManager *manager;
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 @end
+

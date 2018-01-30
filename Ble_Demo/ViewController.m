@@ -26,7 +26,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    
     _devices = @[].mutableCopy;
     [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:BleTableViewCellIdentifier];
     
@@ -35,6 +35,7 @@
     /*
      友情提示，下拉可以刷新
      */
+    
 }
 
 #pragma mark - UITableViewDataSource
@@ -46,7 +47,7 @@
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:BleTableViewCellIdentifier];
     
     CBPeripheral *peripheral = _devices[indexPath.row];
-
+    
     cell.textLabel.text = peripheral.name;
     cell.detailTextLabel.text = peripheral.identifier.UUIDString;
     
@@ -59,36 +60,92 @@
     
     CBPeripheral *peripheral = _devices[indexPath.row];
     
+    [self connectWith:peripheral];
+}
+
+
+#pragma mark - UIScrollViewDelegate
+//滑动tableView手指离开时
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset{
+    
+    if (scrollView.contentOffset.y < 50.0f) {
+        [self startScan];
+    }
+}
+
+#pragma mark - Interaction Event
+- (void)startScan {
+    
+    NSLog(@"开始扫描");
+    
+    [_devices removeAllObjects];
+    
+    [[CCBleManager shareInstance] scanForPeripheralWithServices:nil options:nil withBlock:^(CBPeripheral *peripheral, NSDictionary<NSString *,id> *advertisementData) {
+        
+        if ([[CCBleManager shareInstance].reConnectDevices containsObject:peripheral.identifier.UUIDString]) {
+            NSLog(@"发现已连接过的设备!");
+            
+            [self connectWith:peripheral];
+        }
+        
+        if (peripheral.name == nil) {
+            return ;
+        }
+        
+        NSLog(@"发现设备: %@,%@",peripheral.name,peripheral.identifier.UUIDString);
+        
+        if (![_devices containsObject:peripheral]) {
+            [_devices addObject:peripheral];
+            [self.tableView reloadData];
+        }
+    }];
+    
+}
+
+- (void)connectWith:(CBPeripheral *)peripheral {
+    
     //连接设备...
     [[CCBleManager shareInstance] connectPeripheral:peripheral options:nil withSuccess:^(CBPeripheral *peripheral) {
         
         //连接成功，存储设备
         [[CCBleManager shareInstance] addReConnectDeviceForUUIDString:peripheral.identifier.UUIDString];
         
+        [NSTimer scheduledTimerWithTimeInterval:1.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
+            [[CCBleManager shareInstance] readRSSIWith:peripheral block:^(CBPeripheral *peripheral, NSNumber *RSSI) {
+                NSLog(@"设备名: %@,RSSI值: %@",peripheral.name,RSSI);
+            }];
+        }];
+                
         _currentPeripheral = peripheral;
         
         //搜索设备服务... (可筛选只搜索指定服务)
         [[CCBleManager shareInstance] discoverServices:nil withPeripheral:peripheral withBlock:^(CBPeripheral *peripheral, NSError *error) {
-           
+            
             //发现服务，开始查找特征...    (可筛选只查找指定特征)
             for (CBService *service in peripheral.services) {
                 
                 NSLog(@"发现服务: %@",service.UUID);
                 [[CCBleManager shareInstance] discoverCharacteristics:nil forService:service withPeripheral:peripheral withBlock:^(CBService *service, NSError *error) {
                     
-                    //发现特征，开始订阅监听...    
+                    //发现特征，开始订阅监听...
                     for (CBCharacteristic *characteristic in service.characteristics) {
                         
                         NSLog(@"发现特征: %@",characteristic.UUID);
                         [[CCBleManager shareInstance] setNotifyValue:YES forCharacteristic:characteristic withPeripheral:peripheral withBlock:^(CBCharacteristic *characteristic, NSError *error) {
-                           
+                            
                             if (error) {
                                 NSLog(@"订阅失败...");
                                 return;
                             }
                             
                             NSData *data = characteristic.value;
-                            NSLog(@"value: %@",data);
+                            Byte *bytes = (Byte *)data.bytes;
+                            int value = bytes[0];
+                            NSLog(@"value: %d",value);
+                            
+                            if (value == 2) {
+                                [[NSNotificationCenter defaultCenter] postNotificationName:@"receiveData" object:nil];
+                            }
                         }];
                     }
                 }];
@@ -101,19 +158,11 @@
     } disConnect:^(CBPeripheral *peripheral, NSError *error) {
         NSLog(@"断开连接");
         _currentPeripheral = nil;
+        
+        [self startScan];
     }];
 }
 
-#pragma mark - UIScrollViewDelegate
-//滑动tableView手指离开时
-- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset{
-    
-    if (scrollView.contentOffset.y < 50.0f) {
-        [self startScan];
-    }
-}
-
-#pragma mark - Interaction Event
 - (IBAction)writeEvent:(id)sender {
     
     if (!_currentPeripheral) {
@@ -149,7 +198,9 @@
                 }
             }
         }
-    }}
+    }
+    
+}
 
 #pragma mark - APIs
 - (void)bleManagerCallback {
@@ -160,27 +211,6 @@
             [self startScan];
         }
     };
-    
-    [CCBleManager shareInstance].findReConnectPeripheralBlock = ^(CBPeripheral *peripheral) {
-        
-        NSLog(@"发现重连过的设备");
-    };
-}
-
-- (void)startScan {
-    
-    [_devices removeAllObjects];
-    [[CCBleManager shareInstance] scanForPeripheralWithServices:nil options:nil withBlock:^(CBPeripheral *peripheral) {
-        
-        if ([[CCBleManager shareInstance].reConnectDevices containsObject:peripheral.identifier.UUIDString]) {
-            NSLog(@"发现已连接过的设备!");
-        }
-        
-        if (![_devices containsObject:peripheral]) {
-            [_devices addObject:peripheral];
-            [self.tableView reloadData];
-        }
-    }];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -190,3 +220,4 @@
 
 
 @end
+
