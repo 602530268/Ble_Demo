@@ -57,6 +57,11 @@ static CCBle *manager;
 
 #pragma mark - APIs (public)
 //扫描设备
+/*
+ options:扫描模式，一般有两种:
+ CBCentralManagerScanOptionAllowDuplicatesKey:是否重复扫描已扫描到的设备
+ CBCentralManagerScanOptionSolicitedServiceUUIDsKey:蓝牙未打开时是否显示弹框
+ */
 - (void)scanForPeripheralWithServices:(NSArray *)serviceUUIDs
                               options:(NSDictionary <NSString *, id> *)options
                             withBlock:(CCDidDiscoverPeripheral)block {
@@ -83,6 +88,12 @@ static CCBle *manager;
     _didFailToConnectPerippheralBlock = fail;
     _didDisconnectPeripheralBlock = disConnect;
     
+    /*
+     options:
+     CBConnectPeripheralOptionNotifyOnConnectionKey —— 在连接成功后，程序被挂起，给出系统提示。
+     CBConnectPeripheralOptionNotifyOnDisconnectionKey —— 在程序挂起，蓝牙连接断开时，给出系统提示。
+     CBConnectPeripheralOptionNotifyOnNotificationKey —— 在程序挂起后，收到 peripheral 数据时，给出系统提示。
+     */
     [self.centralManager connectPeripheral:peripheral options:options];
 }
 
@@ -188,7 +199,6 @@ static CCBle *manager;
     if (_didDiscoverPeripheralBlock) {
         _didDiscoverPeripheralBlock(peripheral,advertisementData);
     }
-    
 }
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
