@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		35D4AE002022A238005CFAEB /* CCBle.m in Sources */ = {isa = PBXBuildFile; fileRef = 35D4ADFF2022A238005CFAEB /* CCBle.m */; };
 		AA6A044D1EE14BBD00691232 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6A044C1EE14BBD00691232 /* main.m */; };
 		AA6A04501EE14BBD00691232 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6A044F1EE14BBD00691232 /* AppDelegate.m */; };
 		AA6A04531EE14BBD00691232 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6A04521EE14BBD00691232 /* ViewController.m */; };
@@ -15,7 +16,6 @@
 		AA6A045B1EE14BBD00691232 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA6A04591EE14BBD00691232 /* LaunchScreen.storyboard */; };
 		AA6A04661EE14BBD00691232 /* Ble_DemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6A04651EE14BBD00691232 /* Ble_DemoTests.m */; };
 		AA6A04711EE14BBD00691232 /* Ble_DemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6A04701EE14BBD00691232 /* Ble_DemoUITests.m */; };
-		AA8733E11F5FCDE700462487 /* CCBleManager.m in Sources */ = {isa = PBXBuildFile; fileRef = AA8733E01F5FCDE700462487 /* CCBleManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +36,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		35D4ADFE2022A238005CFAEB /* CCBle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CCBle.h; sourceTree = "<group>"; };
+		35D4ADFF2022A238005CFAEB /* CCBle.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CCBle.m; sourceTree = "<group>"; };
 		AA6A04481EE14BBD00691232 /* Ble_Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ble_Demo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA6A044C1EE14BBD00691232 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		AA6A044E1EE14BBD00691232 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -52,8 +54,6 @@
 		AA6A046C1EE14BBD00691232 /* Ble_DemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Ble_DemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA6A04701EE14BBD00691232 /* Ble_DemoUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Ble_DemoUITests.m; sourceTree = "<group>"; };
 		AA6A04721EE14BBD00691232 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AA8733DF1F5FCDE700462487 /* CCBleManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCBleManager.h; sourceTree = "<group>"; };
-		AA8733E01F5FCDE700462487 /* CCBleManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCBleManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,8 +108,8 @@
 				AA6A044F1EE14BBD00691232 /* AppDelegate.m */,
 				AA6A04511EE14BBD00691232 /* ViewController.h */,
 				AA6A04521EE14BBD00691232 /* ViewController.m */,
-				AA8733DF1F5FCDE700462487 /* CCBleManager.h */,
-				AA8733E01F5FCDE700462487 /* CCBleManager.m */,
+				35D4ADFE2022A238005CFAEB /* CCBle.h */,
+				35D4ADFF2022A238005CFAEB /* CCBle.m */,
 				AA6A04541EE14BBD00691232 /* Main.storyboard */,
 				AA6A04571EE14BBD00691232 /* Assets.xcassets */,
 				AA6A04591EE14BBD00691232 /* LaunchScreen.storyboard */,
@@ -280,8 +280,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA6A04531EE14BBD00691232 /* ViewController.m in Sources */,
-				AA8733E11F5FCDE700462487 /* CCBleManager.m in Sources */,
 				AA6A04501EE14BBD00691232 /* AppDelegate.m in Sources */,
+				35D4AE002022A238005CFAEB /* CCBle.m in Sources */,
 				AA6A044D1EE14BBD00691232 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

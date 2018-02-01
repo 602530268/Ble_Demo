@@ -1,16 +1,16 @@
 //
-//  CCBleManager.m
-//  BLK_iTag
+//  CCBle.m
+//  Ble_Demo
 //
-//  Created by double on 2017/7/31.
-//  Copyright © 2017年 double. All rights reserved.
+//  Created by chencheng on 2018/2/1.
+//  Copyright © 2018年 double. All rights reserved.
 //
 
-#import "CCBleManager.h"
+#import "CCBle.h"
 
 static NSString *kReConnectDeviceUUIDs = @"kReConnectDeviceUUIDs";  //已存储设备
 
-@interface CCBleManager ()<CBCentralManagerDelegate,CBPeripheralDelegate>
+@interface CCBle ()<CBCentralManagerDelegate,CBPeripheralDelegate>
 {
     CCDidDiscoverPeripheral _didDiscoverPeripheralBlock;
     CCDidConnectPeripheral _didConnectPeripheralBlock;
@@ -25,14 +25,14 @@ static NSString *kReConnectDeviceUUIDs = @"kReConnectDeviceUUIDs";  //已存储�
 
 @end
 
-@implementation CCBleManager
+@implementation CCBle
 
-static CCBleManager *manager;
-+ (CCBleManager *)shareInstance {
+static CCBle *manager;
++ (CCBle *)shareInstance {
     
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        manager = [[CCBleManager alloc] init];
+        manager = [[CCBle alloc] init];
         [manager registerDelegate];
     });
     return manager;
@@ -184,7 +184,7 @@ static CCBleManager *manager;
 }
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *,id> *)advertisementData RSSI:(NSNumber *)RSSI {
-
+    
     if (_didDiscoverPeripheralBlock) {
         _didDiscoverPeripheralBlock(peripheral,advertisementData);
     }
@@ -297,4 +297,5 @@ static CCBleManager *manager;
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 @end
+
 

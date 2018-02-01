@@ -7,7 +7,7 @@
 //
 
 #import "ViewController.h"
-#import "CCBleManager.h"
+#import "CCBle.h"
 
 #define BleTableViewCellIdentifier @"BleTableViewCellIdentifier"
 
@@ -80,9 +80,9 @@
     
     [_devices removeAllObjects];
     
-    [[CCBleManager shareInstance] scanForPeripheralWithServices:nil options:nil withBlock:^(CBPeripheral *peripheral, NSDictionary<NSString *,id> *advertisementData) {
+    [[CCBle shareInstance] scanForPeripheralWithServices:nil options:nil withBlock:^(CBPeripheral *peripheral, NSDictionary<NSString *,id> *advertisementData) {
         
-        if ([[CCBleManager shareInstance].reConnectDevices containsObject:peripheral.identifier.UUIDString]) {
+        if ([[CCBle shareInstance].reConnectDevices containsObject:peripheral.identifier.UUIDString]) {
             NSLog(@"发现已连接过的设备!");
             
             [self connectWith:peripheral];
@@ -105,13 +105,13 @@
 - (void)connectWith:(CBPeripheral *)peripheral {
     
     //连接设备...
-    [[CCBleManager shareInstance] connectPeripheral:peripheral options:nil withSuccess:^(CBPeripheral *peripheral) {
+    [[CCBle shareInstance] connectPeripheral:peripheral options:nil withSuccess:^(CBPeripheral *peripheral) {
         
         //连接成功，存储设备
-        [[CCBleManager shareInstance] addReConnectDeviceForUUIDString:peripheral.identifier.UUIDString];
+        [[CCBle shareInstance] addReConnectDeviceForUUIDString:peripheral.identifier.UUIDString];
         
         [NSTimer scheduledTimerWithTimeInterval:1.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
-            [[CCBleManager shareInstance] readRSSIWith:peripheral block:^(CBPeripheral *peripheral, NSNumber *RSSI) {
+            [[CCBle shareInstance] readRSSIWith:peripheral block:^(CBPeripheral *peripheral, NSNumber *RSSI) {
                 NSLog(@"设备名: %@,RSSI值: %@",peripheral.name,RSSI);
             }];
         }];
@@ -119,19 +119,19 @@
         _currentPeripheral = peripheral;
         
         //搜索设备服务... (可筛选只搜索指定服务)
-        [[CCBleManager shareInstance] discoverServices:nil withPeripheral:peripheral withBlock:^(CBPeripheral *peripheral, NSError *error) {
+        [[CCBle shareInstance] discoverServices:nil withPeripheral:peripheral withBlock:^(CBPeripheral *peripheral, NSError *error) {
             
             //发现服务，开始查找特征...    (可筛选只查找指定特征)
             for (CBService *service in peripheral.services) {
                 
                 NSLog(@"发现服务: %@",service.UUID);
-                [[CCBleManager shareInstance] discoverCharacteristics:nil forService:service withPeripheral:peripheral withBlock:^(CBService *service, NSError *error) {
+                [[CCBle shareInstance] discoverCharacteristics:nil forService:service withPeripheral:peripheral withBlock:^(CBService *service, NSError *error) {
                     
                     //发现特征，开始订阅监听...
                     for (CBCharacteristic *characteristic in service.characteristics) {
                         
                         NSLog(@"发现特征: %@",characteristic.UUID);
-                        [[CCBleManager shareInstance] setNotifyValue:YES forCharacteristic:characteristic withPeripheral:peripheral withBlock:^(CBCharacteristic *characteristic, NSError *error) {
+                        [[CCBle shareInstance] setNotifyValue:YES forCharacteristic:characteristic withPeripheral:peripheral withBlock:^(CBCharacteristic *characteristic, NSError *error) {
                             
                             if (error) {
                                 NSLog(@"订阅失败...");
@@ -184,7 +184,7 @@
                 
                 if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"****"]]) {
                     
-                    [[CCBleManager shareInstance] writeValue:data
+                    [[CCBle shareInstance] writeValue:data
                                            forCharacteristic:characteristic
                                                         type:CBCharacteristicWriteWithoutResponse
                                               withPeripheral:_currentPeripheral
@@ -204,7 +204,7 @@
 
 #pragma mark - APIs
 - (void)bleManagerCallback {
-    [CCBleManager shareInstance].updateStateBlock = ^(CBManagerState state) {
+    [CCBle shareInstance].updateStateBlock = ^(CBManagerState state) {
         NSLog(@"蓝牙状态改变");
         
         if (state == CBManagerStatePoweredOn) {

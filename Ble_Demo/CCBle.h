@@ -1,9 +1,9 @@
 //
-//  CCBleManager.h
-//  BLK_iTag
+//  CCBle.h
+//  Ble_Demo
 //
-//  Created by double on 2017/7/31.
-//  Copyright © 2017年 double. All rights reserved.
+//  Created by chencheng on 2018/2/1.
+//  Copyright © 2018年 double. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -22,7 +22,7 @@ typedef void(^CCReadRSSI)(CBPeripheral *peripheral, NSNumber *RSSI);  //读取�
 
 typedef void(^CCDidFindReConnectPeripheral)(CBPeripheral *peripheral); //发现可重连设备
 
-@interface CCBleManager : NSObject
+@interface CCBle : NSObject
 
 @property(nonatomic,strong) CBCentralManager *centralManager;
 
@@ -30,7 +30,7 @@ typedef void(^CCDidFindReConnectPeripheral)(CBPeripheral *peripheral); //发现�
 //@property(nonatomic,copy) CCDidFindReConnectPeripheral findReConnectPeripheralBlock;    //发现存储过的设备(已注释，在搜索到设备那里判断即可)
 @property(nonatomic,strong) NSMutableArray *reConnectDevices;   //存储过的设备
 
-+ (CCBleManager *)shareInstance;
++ (CCBle *)shareInstance;
 
 //扫描设备
 - (void)scanForPeripheralWithServices:(NSArray *)serviceUUIDs
@@ -90,6 +90,4 @@ typedef void(^CCDidFindReConnectPeripheral)(CBPeripheral *peripheral); //发现�
 //删除所有设备
 - (void)removeAllDevices;
 
-
 @end
-
